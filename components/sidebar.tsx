@@ -26,7 +26,7 @@ const SideBar: FC<SideBarProps> = ({ className }) => {
             </Link>
             <div className="flex flex-col gap-y-2 flex-1">
                 <SideBarItem label="Learn" iconSrc="/learn.svg" href="/learn" />
-                <SideBarItem label="LeaderBoard" iconSrc="/leaderBoard.svg" href="/leaderboard" />
+                <SideBarItem label="LeaderBoard" iconSrc="/leaderboard.svg" href="/leaderboard" />
                 <SideBarItem label="Quests" iconSrc="/quests.svg" href="/quests" />
                 <SideBarItem label="Shop" iconSrc="/shop.svg" href="/shop" />
             </div>
