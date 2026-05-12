@@ -7,51 +7,94 @@ import * as schema from "@/db/schema";
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql, { schema });
 
+const coursesData = [
+  {
+    title: "Spanish",
+    code: "es",
+
+    vocabulary: {
+      man: "el hombre",
+      woman: "la mujer",
+      boy: "el chico",
+      zombie: "el zombie",
+      robot: "el robot",
+      girl: "la niña",
+    },
+  },
+
+  {
+    title: "Romanian",
+    code: "ro",
+
+    vocabulary: {
+      man: "bărbatul",
+      woman: "femeia",
+      boy: "băiatul",
+      zombie: "zombie",
+      robot: "robotul",
+      girl: "fata",
+    },
+  },
+
+  {
+    title: "Russian",
+    code: "ru",
+
+    vocabulary: {
+      man: "мужчина",
+      woman: "женщина",
+      boy: "мальчик",
+      zombie: "зомби",
+      robot: "робот",
+      girl: "девочка",
+    },
+  },
+];
+
 const main = async () => {
   try {
     console.log("Seeding database");
 
-    // Delete all existing data
-    await Promise.all([
-      db.delete(schema.userProgress),
-      db.delete(schema.challenges),
-      db.delete(schema.units),
-      db.delete(schema.lessons),
-      db.delete(schema.courses),
-      db.delete(schema.challengeOptions),
-      db.delete(schema.userSubscription),
-    ]);
+    // Delete existing data
+    await db.delete(schema.challengeOptions);
+    await db.delete(schema.challenges);
+    await db.delete(schema.lessons);
+    await db.delete(schema.units);
+    await db.delete(schema.courses);
+    await db.delete(schema.userProgress);
+    await db.delete(schema.userSubscription);
 
-    // Insert courses
-    const courses = await db
-      .insert(schema.courses)
-      .values([
-        { title: "Spanish", imageSrc: "/flags/es.svg" },
-      ])
-      .returning();
+    for (const courseData of coursesData) {
+      // Create course
+      const [course] = await db
+        .insert(schema.courses)
+        .values({
+          title: courseData.title,
+          imageSrc: `/flags/${courseData.code}.svg`,
+        })
+        .returning();
 
-    // For each course, insert units
-    for (const course of courses) {
+      // Create units
       const units = await db
         .insert(schema.units)
         .values([
           {
             courseId: course.id,
             title: "Unit 1",
-            description: `Learn the basics of ${course.title}`,
+            description: `Learn the basics of ${courseData.title}`,
             order: 1,
           },
           {
             courseId: course.id,
             title: "Unit 2",
-            description: `Learn intermediate ${course.title}`,
+            description: `Learn intermediate ${courseData.title}`,
             order: 2,
           },
         ])
         .returning();
 
-      // For each unit, insert lessons
       for (const unit of units) {
+        // Create lessons
         const lessons = await db
           .insert(schema.lessons)
           .values([
@@ -63,8 +106,8 @@ const main = async () => {
           ])
           .returning();
 
-        // For each lesson, insert challenges
         for (const lesson of lessons) {
+          // Create challenges
           const challenges = await db
             .insert(schema.challenges)
             .values([
@@ -119,206 +162,213 @@ const main = async () => {
             ])
             .returning();
 
-          // For each challenge, insert challenge options
           for (const challenge of challenges) {
+            // Challenge 1
             if (challenge.order === 1) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "el hombre",
-                  imageSrc: "/options/es/img/man.svg",
-                  audioSrc: "/options/es/audio/man.mp3",
+                  text: courseData.vocabulary.man,
+                  imageSrc: `/options/${courseData.code}/img/man.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/man.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "la mujer",
-                  imageSrc: "/options/es/img/woman.svg",
-                  audioSrc: "/options/es/audio/woman.mp3",
+                  text: courseData.vocabulary.woman,
+                  imageSrc: `/options/${courseData.code}/img/woman.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/woman.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el chico",
-                  imageSrc: "/options/es/img/boy.svg",
-                  audioSrc: "/options/es/audio/boy.mp3",
+                  text: courseData.vocabulary.boy,
+                  imageSrc: `/options/${courseData.code}/img/boy.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/boy.mp3`,
                 },
               ]);
             }
 
+            // Challenge 2
             if (challenge.order === 2) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "la mujer",
-                  imageSrc: "/options/es/img/woman.svg",
-                  audioSrc: "/options/es/audio/woman.mp3",
+                  text: courseData.vocabulary.woman,
+                  imageSrc: `/options/${courseData.code}/img/woman.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/woman.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el chico",
-                  imageSrc: "/options/es/img/boy.svg",
-                  audioSrc: "/options/es/audio/boy.mp3",
+                  text: courseData.vocabulary.boy,
+                  imageSrc: `/options/${courseData.code}/img/boy.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/boy.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el hombre",
-                  imageSrc: "/options/es/img/man.svg",
-                  audioSrc: "/options/es/audio/man.mp3",
+                  text: courseData.vocabulary.man,
+                  imageSrc: `/options/${courseData.code}/img/man.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/man.mp3`,
                 },
               ]);
             }
 
+            // Challenge 3
             if (challenge.order === 3) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "la mujer",
-                  imageSrc: "/options/es/img/woman.svg",
-                  audioSrc: "/options/es/audio/woman.mp3",
+                  text: courseData.vocabulary.woman,
+                  imageSrc: `/options/${courseData.code}/img/woman.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/woman.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el hombre",
-                  imageSrc: "/options/es/img/man.svg",
-                  audioSrc: "/options/es/audio/man.mp3",
+                  text: courseData.vocabulary.man,
+                  imageSrc: `/options/${courseData.code}/img/man.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/man.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "el chico",
-                  imageSrc: "/options/es/img/boy.svg",
-                  audioSrc: "/options/es/audio/boy.mp3",
+                  text: courseData.vocabulary.boy,
+                  imageSrc: `/options/${courseData.code}/img/boy.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/boy.mp3`,
                 },
               ]);
             }
 
+            // Challenge 4
             if (challenge.order === 4) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "la mujer",
-                  audioSrc: "/options/es/audio/woman.mp3",
+                  text: courseData.vocabulary.woman,
+                  audioSrc: `/options/${courseData.code}/audio/woman.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "el hombre",
-                  audioSrc: "/options/es/audio/man.mp3",
+                  text: courseData.vocabulary.man,
+                  audioSrc: `/options/${courseData.code}/audio/man.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el chico",
-                  audioSrc: "/options/es/audio/boy.mp3",
+                  text: courseData.vocabulary.boy,
+                  audioSrc: `/options/${courseData.code}/audio/boy.mp3`,
                 },
               ]);
             }
 
+            // Challenge 5
             if (challenge.order === 5) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el hombre",
-                  imageSrc: "/options/es/img/man.svg",
-                  audioSrc: "/options/es/audio/man.mp3",
+                  text: courseData.vocabulary.man,
+                  imageSrc: `/options/${courseData.code}/img/man.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/man.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "la mujer",
-                  imageSrc: "/options/es/img/woman.svg",
-                  audioSrc: "/options/es/audio/woman.mp3",
+                  text: courseData.vocabulary.woman,
+                  imageSrc: `/options/${courseData.code}/img/woman.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/woman.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "el zombie",
-                  imageSrc: "/options/es/img/zombie.svg",
-                  audioSrc: "/options/es/audio/zombie.mp3",
+                  text: courseData.vocabulary.zombie,
+                  imageSrc: `/options/${courseData.code}/img/zombie.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/zombie.mp3`,
                 },
               ]);
             }
 
+            // Challenge 6
             if (challenge.order === 6) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "el robot",
-                  imageSrc: "/options/es/img/robot.svg",
-                  audioSrc: "/options/es/audio/robot.mp3",
+                  text: courseData.vocabulary.robot,
+                  imageSrc: `/options/${courseData.code}/img/robot.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/robot.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el zombie",
-                  imageSrc: "/options/es/img/zombie.svg",
-                  audioSrc: "/options/es/audio/zombie.mp3",
+                  text: courseData.vocabulary.zombie,
+                  imageSrc: `/options/${courseData.code}/img/zombie.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/zombie.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el chico",
-                  imageSrc: "/options/es/img/boy.svg",
-                  audioSrc: "/options/es/audio/boy.mp3",
+                  text: courseData.vocabulary.boy,
+                  imageSrc: `/options/${courseData.code}/img/boy.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/boy.mp3`,
                 },
               ]);
             }
 
+            // Challenge 7
             if (challenge.order === 7) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "la nina",
-                  imageSrc: "/options/es/img/girl.svg",
-                  audioSrc: "/options/es/audio/girl.mp3",
+                  text: courseData.vocabulary.girl,
+                  imageSrc: `/options/${courseData.code}/img/girl.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/girl.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el zombie",
-                  imageSrc: "/options/es/img/zombie.svg",
-                  audioSrc: "/options/es/audio/zombie.mp3",
+                  text: courseData.vocabulary.zombie,
+                  imageSrc: `/options/${courseData.code}/img/zombie.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/zombie.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el hombre",
-                  imageSrc: "/options/es/img/man.svg",
-                  audioSrc: "/options/es/audio/man.mp3",
+                  text: courseData.vocabulary.man,
+                  imageSrc: `/options/${courseData.code}/img/man.svg`,
+                  audioSrc: `/options/${courseData.code}/audio/man.mp3`,
                 },
               ]);
             }
 
+            // Challenge 8
             if (challenge.order === 8) {
               await db.insert(schema.challengeOptions).values([
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "la mujer",
-                  audioSrc: "/options/es/audio/woman.mp3",
+                  text: courseData.vocabulary.woman,
+                  audioSrc: `/options/${courseData.code}/audio/woman.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: true,
-                  text: "el zombie",
-                  audioSrc: "/options/es/audio/zombie.mp3",
+                  text: courseData.vocabulary.zombie,
+                  audioSrc: `/options/${courseData.code}/audio/zombie.mp3`,
                 },
                 {
                   challengeId: challenge.id,
                   correct: false,
-                  text: "el chico",
-                  audioSrc: "/options/es/audio/boy.mp3",
+                  text: courseData.vocabulary.boy,
+                  audioSrc: `/options/${courseData.code}/audio/boy.mp3`,
                 },
               ]);
             }
@@ -326,6 +376,7 @@ const main = async () => {
         }
       }
     }
+
     console.log("Database seeded successfully");
   } catch (error) {
     console.error(error);
