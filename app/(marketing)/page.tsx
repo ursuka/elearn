@@ -8,7 +8,7 @@ import { FC } from "react";
 const Home: FC = () => {
   return (
     <main className="max-w-screen mx-auto flex-1 w-full flex flex-col lg:flex-row items-center justify-center p-4 gap-2">
-      <div className="relative size-96 lg:size-106 mb-8 mb:mb-0 lg:mr-5 ">
+      <div className="relative size-48 sm:size-64 md:size-80 lg:size-106 mb-8 lg:mb-0 lg:mr-5">
         <Image src={'/logoWithText.svg'} alt="Logo With Text" fill />
       </div>
       <div className="flex flex-col items-center gap-y-8">
